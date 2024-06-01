@@ -97,7 +97,7 @@ class ReportRepository {
     try {
       ServiceCallback serviceCallback =
           ServiceCallback(success: true, msg: 'Laporan berhasil dihapus');
-      db.collection('rid').doc(rid).delete().catchError((e) {
+      db.collection('report').doc(rid).delete().catchError((e) {
         print(e);
         serviceCallback = ServiceCallback(
             success: false, msg: 'Server error. Laporan gagal dihapus');

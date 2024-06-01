@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:helpdesk_app/repositories/report_repository.dart';
 
 import '../../../components/my_elevated_button.dart';
 import '../../../components/my_overview_report_card.dart';
 import '../../../components/my_sender_card.dart';
+import '../../../config/constants.dart';
 import '../../../config/utils/month.dart';
+import '../../../repositories/report_repository.dart';
 
 // ignore: must_be_immutable
 class OverviewMenu extends StatefulWidget {
@@ -43,14 +44,14 @@ class _OverviewMenuState extends State<OverviewMenu> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25.0),
+      padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 25),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           MySenderCard(
             name: widget.name,
             departement: widget.bagian,
           ),
+          heightM,
           MyOverviewReportCard(
             reportId: '#${widget.rid}',
             createAt:
@@ -62,6 +63,7 @@ class _OverviewMenuState extends State<OverviewMenu> {
             status: widget.status,
             note: widget.catatan,
           ),
+          heightL,
           widget.role == 'Teknisi'
               ? MyElevatedButton(
                   title: widget.status == 'Progress'
@@ -92,7 +94,12 @@ class _OverviewMenuState extends State<OverviewMenu> {
                         });
                   },
                 )
-              : const SizedBox(),
+              : (widget.status != 'Diterima') ? const SizedBox() : MyElevatedButton(
+                title: 'Edit Laporan',
+                onPressed: (){
+                  print('edited');
+                },
+              ),
         ],
       ),
     );

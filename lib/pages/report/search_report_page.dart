@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../components/my_listile.dart';
 import '../../models/report_model.dart';
 
 class SearchReportPage extends StatefulWidget {
@@ -12,14 +11,13 @@ class SearchReportPage extends StatefulWidget {
 }
 
 class _SearchReportPageState extends State<SearchReportPage> {
+  final searchController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    final searchController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
         title: TextField(
           controller: searchController,
-          autofocus: true,
           style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
@@ -37,30 +35,8 @@ class _SearchReportPageState extends State<SearchReportPage> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25.0),
-        child: ListView.separated(
-          shrinkWrap: true,
-          itemBuilder: (context, index) {
-            return MyListTile(
-              onTap: () {},
-              report: Report(
-                rid: 'rid',
-                title: 'title',
-                jenis: 'jenis',
-                deskripsi: 'deskripsi',
-                catatan: 'catatan',
-                pid: 'pid',
-                createTime: DateTime.now(),
-                status: 'status',
-              ),
-            );
-          },
-          separatorBuilder: (context, index) {
-            return const Divider();
-          },
-          itemCount: 5,
-        ),
+      body: Center(
+        child: Text('Belum ada hasil'),
       ),
     );
   }

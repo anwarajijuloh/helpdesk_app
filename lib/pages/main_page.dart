@@ -164,96 +164,80 @@ class _MainPageState extends State<MainPage>
                     final listReport = querySnap.docs;
                     return RefreshIndicator(
                       onRefresh: _pullRefresh,
-                      child: ListView.separated(
+                      child: ListView.builder(
                         shrinkWrap: true,
                         itemBuilder: (ctx, i) {
                           final report = listReport[i].data();
-                          return Dismissible(
-                            direction: DismissDirection.endToStart,
-                            key: Key(report.rid),
-                            background: Container(
-                              color: const Color.fromARGB(255, 167, 37, 27),
-                              alignment: Alignment.centerRight,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 20),
-                              child: const Icon(
-                                Icons.delete,
-                                color: Colors.white,
-                              ),
-                            ),
-                            confirmDismiss: (direction) async {
-                              if (role != 'Karyawan') {
-                                ScaffoldMessenger.of(context)
-                                  ..removeCurrentSnackBar()
-                                  ..showSnackBar(const SnackBar(
-                                      content: Text('Permission Denied')));
-                                return false;
-                              }
-                              if (report.status != 'Diterima') {
-                                ScaffoldMessenger.of(context)
-                                  ..removeCurrentSnackBar()
-                                  ..showSnackBar(const SnackBar(
-                                      content: Text(
-                                          'Laporan sedang dalam progress')));
-                                return false;
-                              }
-                              return await showDialog<bool>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text("Hapus Laporan"),
-                                    content: const Text(
-                                        "Apakah anda yakin akan menghapus laporan ini?"),
-                                    actions: <Widget>[
-                                      MaterialButton(
-                                        onPressed: () {
-                                          Navigator.pop(context, true);
-                                        },
-                                        child: const Text('Yes'),
-                                      ),
-                                      MaterialButton(
-                                        onPressed: () {
-                                          Navigator.pop(context, false);
-                                        },
-                                        child: const Text('No'),
-                                      ),
-                                    ],
+                          return MyListTile(
+                            report: report,
+                            onLongPress: () {
+                              if (role != 'Teknisi') {
+                                if (report.status == 'Diterima') {
+                                  showDialog(
+                                    context: ctx,
+                                    builder: (ctx) {
+                                      return AlertDialog(
+                                        title: const Text('Hapus'),
+                                        content: const Text(
+                                            'Apakah anda yakin ingin menghapus laporan ini?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.of(ctx).pop(),
+                                            child: const Text('Batal'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () async {
+                                              await ReportRepository
+                                                      .deleteReport(
+                                                          rid: report.rid)
+                                                  .then((res) {
+                                                ScaffoldMessenger.of(ctx)
+                                                  ..removeCurrentSnackBar()
+                                                  ..showSnackBar(SnackBar(
+                                                      content: Text(res.msg)));
+                                              });
+                                              Navigator.pop(ctx);
+                                            },
+                                            child: const Text('Hapus'),
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   );
-                                },
+                                }else {
+                                ScaffoldMessenger.of(ctx)
+                                  ..removeCurrentSnackBar()
+                                  ..showSnackBar(const SnackBar(
+                                      content: Text('Sedang dalam proses')));
+                              }
+                              } else {
+                                ScaffoldMessenger.of(ctx)
+                                  ..removeCurrentSnackBar()
+                                  ..showSnackBar(const SnackBar(
+                                      content: Text('Access denied!')));
+                              }
+                            },
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      DetailReportPage(report: report),
+                                ),
                               );
                             },
-                            onDismissed: (direction) async {
-                              await ReportRepository.deleteReport(rid: report.rid)
-                                  .then((res) {
-                                ScaffoldMessenger.of(context)
-                                  ..removeCurrentSnackBar()
-                                  ..showSnackBar(
-                                      SnackBar(content: Text(res.msg)));
-                              });
-                            },
-                            child: MyListTile(
-                              report: report,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        DetailReportPage(report: report),
-                                  ),
-                                );
-                              },
-                            ),
                           );
-                        },
-                        separatorBuilder: (ctx, i) {
-                          return const Divider();
                         },
                         itemCount: listReport.length,
                       ),
                     );
                   }
                   return Center(
-                    child: Text('Belum ada laporan\n$selected', textAlign: TextAlign.center,),
+                    child: Text(
+                      'Belum ada laporan\n$selected',
+                      textAlign: TextAlign.center,
+                    ),
                   );
                 },
               ),

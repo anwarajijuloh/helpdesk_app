@@ -8,16 +8,18 @@ import 'badge_status.dart';
 class MyListTile extends StatelessWidget {
   final Report? report;
   final Function()? onTap;
+  final void Function()? onLongPress;
   const MyListTile({
     super.key,
     required this.onTap,
-    this.report,
+    this.report, this.onLongPress,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
+        onLongPress: onLongPress,
         onTap: onTap,
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(8),
