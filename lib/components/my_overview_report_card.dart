@@ -52,6 +52,7 @@ class MyOverviewReportCard extends StatelessWidget {
                   ),
                   Text(
                     createAt,
+                    textAlign: TextAlign.end,
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w500,

@@ -1,8 +1,7 @@
-import 'package:helpdesk_app/pages/report/search_report_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
-
 import 'package:flutter/material.dart';
+
 import '../config/theme/app_theme.dart';
 import '../pages/auth/reset_pass_page.dart';
 import '../pages/auth/sign_in_page.dart';
@@ -38,7 +37,6 @@ class MainApp extends StatelessWidget {
         '/signup_page': (_) => const SignUpPage(),
         '/add_report': (_) => const AddReportPage(),
         '/resetpass_page': (_) => const ResetPassPage(),
-        '/search_report': (_) => const SearchReportPage(),
       },
     );
   }

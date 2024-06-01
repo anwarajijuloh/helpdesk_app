@@ -6,8 +6,9 @@ class MyTextField extends StatelessWidget {
   final TextEditingController controller;
   final String labelText;
   final String hintText;
+  final TextInputType? keyboardType;
   final String? Function(String?)? validator;
-  const MyTextField({super.key, required this.labelText, required this.hintText, required this.controller, this.validator});
+  const MyTextField({super.key, required this.labelText, required this.hintText, required this.controller, this.validator, this.keyboardType});
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +25,7 @@ class MyTextField extends StatelessWidget {
         contentPadding: const EdgeInsets.all(18),
       ),
       validator: validator,
+      keyboardType: keyboardType,
     );
   }
 }

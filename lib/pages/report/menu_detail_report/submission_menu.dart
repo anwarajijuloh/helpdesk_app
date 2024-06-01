@@ -104,7 +104,7 @@ class _SubmissionMenuState extends State<SubmissionMenu> {
                       child: MySubmissionCard(
                         title: submission.title,
                         subtitle: submission.deskripsi,
-                        date: DateFormat("EEEE, d MMM y", "id_id").format(submission.createTime),
+                        date: DateFormat("EEEE, d MMM y\nHH.mm", "id_id").format(submission.createTime),
                         status: '${submission.status}',
                       ),
                       onTap: () {

@@ -116,16 +116,16 @@ class AuthRepository {
   }) async {
     try {
       final encNewPass = await CryptHelper.cryptText(newPassword);
-      ServiceCallback serviceCallback = ServiceCallback(success: true, msg: 'Login berhasil');
+      ServiceCallback serviceCallback = ServiceCallback(success: true, msg: 'Reset password berhasil!');
       await db.collection('person').where('username', isEqualTo: username).get().then(
           (querySnapshot) {
         if (querySnapshot.docs.isEmpty) {
-          serviceCallback = ServiceCallback(success: false, msg: 'Username tidak ditemukan');
+          serviceCallback = ServiceCallback(success: false, msg: 'Username tidak ditemukan!');
         } else {
           for (var docSnapshot in querySnapshot.docs) {
             db.collection('person').doc(docSnapshot.id).update({'password': encNewPass}).then(
                 (value) {
-              serviceCallback = ServiceCallback(success: true, msg: 'Password berhasil di reset.');
+              serviceCallback = ServiceCallback(success: true, msg: 'Password berhasil di reset!');
             }, onError: (e) {
               serviceCallback =
                   ServiceCallback(success: false, msg: 'Terjadi kesalahan reset password.');

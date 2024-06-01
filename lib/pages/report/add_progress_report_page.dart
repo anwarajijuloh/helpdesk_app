@@ -17,13 +17,24 @@ class AddProgressReportPage extends StatelessWidget {
     final _formKey = GlobalKey<FormState>();
     final _titleController = TextEditingController();
     final _deskripsiController = TextEditingController();
+    final _estimateController = TextEditingController();
+    final _dropdownController = TextEditingController();
 
     bool isUpdate = false;
 
+    List<String> labelList = <String>[
+      'Menit',
+      'Jam',
+      'Hari',
+      'Minggu',
+      'Bulan',
+    ];
     ReportProgress? _reportProgress = reportProgress;
     if (_reportProgress != null) {
       _titleController.text = _reportProgress.title;
       _deskripsiController.text = _reportProgress.deskripsi;
+      _estimateController.text = _reportProgress.estimasi!;
+      _dropdownController.text = _reportProgress.satuanEstimasi!;
       isUpdate = true;
     }
     return Scaffold(
@@ -69,20 +80,51 @@ class AddProgressReportPage extends StatelessWidget {
                 Row(
                   children: [
                     Flexible(
+                      flex: 1,
                       child: MyTextField(
-                        controller: TextEditingController(),
-                        hintText: 'Estimasi Jam',
-                        labelText: 'Jam Estimasi',
+                        controller: _estimateController,
+                        hintText: 'Estimasi',
+                        labelText: 'Estimasi',
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Estimasi tidak boleh kosong!';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                     const SizedBox(
                       width: 10,
                     ),
                     Flexible(
-                      child: MyTextField(
-                        controller: TextEditingController(),
-                        hintText: 'Estimasi Menit',
-                        labelText: 'Menit Estimasi',
+                      flex: 2,
+                      child: DropdownMenu<String>(
+                        controller: _dropdownController,
+                        hintText: 'Pilih waktu',
+                        inputDecorationTheme: const InputDecorationTheme(
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                            borderSide: BorderSide(width: 0.8),
+                          ),
+                          contentPadding: EdgeInsets.all(18),
+                          fillColor: greenSecondary,
+                          filled: true,
+                          hintStyle: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: greenPrimary,
+                            fontStyle: FontStyle.normal,
+                          ),
+                        ),
+                        expandedInsets: EdgeInsets.zero,
+                        dropdownMenuEntries: labelList
+                            .map<DropdownMenuEntry<String>>((String depLabel) {
+                          return DropdownMenuEntry<String>(
+                            value: depLabel,
+                            label: depLabel,
+                          );
+                        }).toList(),
                       ),
                     ),
                   ],
@@ -110,8 +152,10 @@ class AddProgressReportPage extends StatelessWidget {
                         deskripsi: _deskripsiController.text,
                         createTime: DateTime.now(),
                         rid: rid,
+                        estimasi: _estimateController.text,
+                        satuanEstimasi: _dropdownController.text,
                       );
-                      if (isUpdate) {
+                      if (isUpdate == true) {
                         reportProgress.rpid = _reportProgress!.rpid;
                         ReportProgressRepository.updateReportProgress(
                                 reportProgress: reportProgress)
@@ -126,7 +170,7 @@ class AddProgressReportPage extends StatelessWidget {
                       } else {
                         ReportProgressRepository.addReportProgress(
                                 reportProgress: reportProgress)
-                           .then((res) {
+                            .then((res) {
                           ScaffoldMessenger.of(context)
                             ..removeCurrentSnackBar()
                             ..showSnackBar(SnackBar(content: Text(res.msg)));

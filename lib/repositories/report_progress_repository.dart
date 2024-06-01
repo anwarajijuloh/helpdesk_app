@@ -46,7 +46,7 @@ class ReportProgressRepository {
               toFirestore: (ReportProgress reportProgress, options) =>
                   reportProgress.toFirestore())
           .doc(reportProgress.rpid);
-      await updateProgressRef.set(reportProgress).catchError((e) {
+      await updateProgressRef.set(reportProgress, SetOptions(merge: true)).catchError((e) {
         print(e);
         serviceCallback = ServiceCallback(
             success: false, msg: 'Server Error. Gagal update progress');

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:helpdesk_app/models/person_model.dart';
 import 'package:helpdesk_app/pages/report/add_progress_report_page.dart';
 import 'package:helpdesk_app/pages/report/add_submission_report_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../config/constants.dart';
 import '../../models/report_model.dart';
@@ -12,8 +11,9 @@ import 'menu_detail_report/progress_menu.dart';
 import 'menu_detail_report/submission_menu.dart';
 
 class DetailReportPage extends StatefulWidget {
+  final String role;
   final Report report;
-  const DetailReportPage({super.key, required this.report});
+  const DetailReportPage({super.key, required this.report, required this.role});
 
   @override
   State<DetailReportPage> createState() => _DetailReportPageState();
@@ -22,15 +22,6 @@ class DetailReportPage extends StatefulWidget {
 class _DetailReportPageState extends State<DetailReportPage>
     with SingleTickerProviderStateMixin {
   final FirebaseFirestore db = FirebaseFirestore.instance;
-  var _role;
-
-  Future<Null> getSharedPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final myrole = prefs.getString('role');
-    setState(() {
-      _role = myrole;
-    });
-  }
 
   late TabController _tabController;
   int _activeIndex = 0;
@@ -44,7 +35,6 @@ class _DetailReportPageState extends State<DetailReportPage>
         _activeIndex = _tabController.index;
       });
     });
-    getSharedPrefs();
   }
 
   @override
@@ -94,49 +84,26 @@ class _DetailReportPageState extends State<DetailReportPage>
                   return OverviewMenu(
                     name: person.nama,
                     bagian: '${person.bagian}',
-                    rid: widget.report.rid,
-                    dateCreate: widget.report.createTime,
-                    title: widget.report.title,
-                    jenis: widget.report.jenis,
-                    deskripsi: widget.report.deskripsi,
-                    status: widget.report.status,
-                    catatan: '${widget.report.catatan}',
-                    role: '$_role',
-                    img: widget.report.image != null
-                        ? Container(
-                            height: 140,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: NetworkImage(widget.report.image!),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          )
-                        : Image.asset(
-                            'assets/images/service.png',
-                            height: 140,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
+                    role: widget.role,
+                    report: widget.report,
                   );
                 }
                 return Container();
               }),
           ProgressMenu(
             rid: widget.report.rid,
-            role: _role.toString(),
+            role: widget.role,
             date: widget.report.createTime,
             image: widget.report.image,
             title: widget.report.title,
           ),
           SubmissionMenu(
             rid: widget.report.rid,
-            role: _role.toString(),
+            role: widget.role,
           ),
         ],
       ),
-      floatingActionButton: _role == 'Teknisi'
+      floatingActionButton: widget.role == 'Teknisi'
           ? _buildFloatingActionButton(context)
           : const SizedBox(),
     );
@@ -146,26 +113,46 @@ class _DetailReportPageState extends State<DetailReportPage>
     if (_activeIndex == 1) {
       return FloatingActionButton(
         onPressed: () {
-          Navigator.of(ctx).push(
-            MaterialPageRoute(
-              builder: (context) => AddProgressReportPage(
-                rid: widget.report.rid,
+          if (widget.report.status != 'Progress') {
+            ScaffoldMessenger.of(ctx).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Laporan tidak dalam progress!',
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            Navigator.of(ctx).push(
+              MaterialPageRoute(
+                builder: (context) => AddProgressReportPage(
+                  rid: widget.report.rid,
+                ),
+              ),
+            );
+          }
         },
         child: const Icon(Icons.add),
       );
     } else if (_activeIndex == 2) {
       return FloatingActionButton(
         onPressed: () {
-          Navigator.of(ctx).push(
-            MaterialPageRoute(
-              builder: (context) => AddSubmissionReportPage(
-                rid: widget.report.rid,
+          if (widget.report.status != 'Progress') {
+            ScaffoldMessenger.of(ctx).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Laporan tidak dalam progress!',
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            Navigator.of(ctx).push(
+              MaterialPageRoute(
+                builder: (context) => AddSubmissionReportPage(
+                  rid: widget.report.rid,
+                ),
+              ),
+            );
+          }
         },
         child: const Icon(Icons.create),
       );

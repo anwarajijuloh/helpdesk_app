@@ -1,14 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:helpdesk_app/components/my_text_form_field.dart';
-import 'package:helpdesk_app/repositories/report_repository.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../components/my_elevated_button.dart';
+import '../../components/my_text_field.dart';
 import '../../config/constants.dart';
 import '../../models/report_model.dart';
+import '../../repositories/report_repository.dart';
 
 class AddReportPage extends StatefulWidget {
   final Report? report;
@@ -17,6 +17,13 @@ class AddReportPage extends StatefulWidget {
   @override
   State<AddReportPage> createState() => _AddReportPageState();
 }
+
+List<String> labelList = <String>[
+  'Hardware',
+  'Software',
+  'Jaringan',
+  'Tidak diketahui',
+];
 
 class _AddReportPageState extends State<AddReportPage> {
   final _formKey = GlobalKey<FormState>();
@@ -87,11 +94,10 @@ class _AddReportPageState extends State<AddReportPage> {
             child: Column(
               children: [
                 heightM,
-                MyTextFormField(
+                MyTextField(
                   controller: _titleController,
                   hintText: 'Tambah judul',
-                  icons: Icons.card_membership,
-                  isObscured: false,
+                  labelText: 'Judul',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Judul tidak boleh kosong";
@@ -100,24 +106,38 @@ class _AddReportPageState extends State<AddReportPage> {
                   },
                 ),
                 heightM,
-                MyTextFormField(
+                DropdownMenu<String>(
                   controller: _jenisController,
-                  hintText: 'Tambah jenis',
-                  icons: Icons.type_specimen,
-                  isObscured: false,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Jenis tidak boleh kosong";
-                    }
-                    return null;
-                  },
+                  hintText: 'Jenis',
+                  inputDecorationTheme: const InputDecorationTheme(
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      borderSide: BorderSide(width: 0.8),
+                    ),
+                    contentPadding: EdgeInsets.all(18),
+                    fillColor: greenSecondary,
+                    filled: true,
+                    hintStyle: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: greenPrimary,
+                      fontStyle: FontStyle.normal,
+                    ),
+                  ),
+                  expandedInsets: EdgeInsets.zero,
+                  dropdownMenuEntries: labelList
+                      .map<DropdownMenuEntry<String>>((String depLabel) {
+                    return DropdownMenuEntry<String>(
+                      value: depLabel,
+                      label: depLabel,
+                    );
+                  }).toList(),
                 ),
                 heightM,
-                MyTextFormField(
+                MyTextField(
                   controller: _deskripsiController,
                   hintText: 'Tambah deskripsi',
-                  icons: Icons.description,
-                  isObscured: false,
+                  labelText: 'Deskripsi',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Deskripsi tidak boleh kosong";
@@ -126,18 +146,30 @@ class _AddReportPageState extends State<AddReportPage> {
                   },
                 ),
                 heightM,
-                MyTextFormField(
+                MyTextField(
                   controller: _catatanController,
                   hintText: 'Tambah catatan',
-                  icons: Icons.note_add,
-                  isObscured: false,
+                  labelText: 'Catatan',
                 ),
                 heightM,
+                _image != null
+                    ? ImageSelected(
+                        myWidget: Image.file(_image!, fit: BoxFit.cover),
+                      )
+                    : (imageFromDB != null && _image == null)
+                        ? ImageSelected(
+                            myWidget:
+                                Image.network(imageFromDB, fit: BoxFit.cover),
+                          )
+                        : imageField(context),
                 heightL,
                 MyElevatedButton(
                   title: title,
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
+                      const Center(
+                        child: CircularProgressIndicator(),
+                      );
                       Report newReport = Report(
                         rid: '',
                         title: _titleController.text,
@@ -198,24 +230,6 @@ class _AddReportPageState extends State<AddReportPage> {
                     }
                   },
                 ),
-                heightM,
-                TextButton(
-                  onPressed: () {
-                    _showPicker(context);
-                  },
-                  child: const Text('Upload Image'),
-                ),
-                heightM,
-                _image != null
-                    ? ImageSelected(
-                        myWidget: Image.file(_image!, fit: BoxFit.cover),
-                      )
-                    : (imageFromDB != null && _image == null)
-                        ? ImageSelected(
-                            myWidget:
-                                Image.network(imageFromDB, fit: BoxFit.cover),
-                          )
-                        : imageField(),
               ],
             ),
           ),
@@ -224,32 +238,38 @@ class _AddReportPageState extends State<AddReportPage> {
     );
   }
 
-  Container imageField() {
-    return Container(
-      height: 200,
-      width: double.maxFinite,
-      decoration: BoxDecoration(
-        color: greenSecondary,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: const Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.image,
-            size: 60,
-            color: greenPrimary,
-          ),
-          heightS,
-          Text(
-            'No Image',
-            style: TextStyle(
-              fontSize: 12,
-              fontStyle: FontStyle.italic,
-              color: grey3,
+  GestureDetector imageField(context) {
+    return GestureDetector(
+      onTap: () {
+        _showPicker(context);
+      },
+      child: Container(
+        height: 200,
+        width: double.maxFinite,
+        decoration: BoxDecoration(
+          border: Border.all(),
+          color: greenSecondary,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.image,
+              size: 60,
+              color: greenPrimary,
             ),
-          ),
-        ],
+            heightS,
+            Text(
+              'Upload Image',
+              style: TextStyle(
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+                color: grey3,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

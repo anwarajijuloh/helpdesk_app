@@ -10,6 +10,7 @@ import '../components/my_search.dart';
 import '../config/constants.dart';
 import '../repositories/report_repository.dart';
 import 'report/detail_report_page.dart';
+import 'report/search_report_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -95,7 +96,14 @@ class _MainPageState extends State<MainPage>
           children: [
             MySearch(
               onTap: () {
-                Navigator.of(context).pushNamed('/search_report');
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => SearchReportPage(
+                      role: role,
+                      pid: pid,
+                    ),
+                  ),
+                );
               },
             ),
             heightM,
@@ -157,7 +165,7 @@ class _MainPageState extends State<MainPage>
             Expanded(
               child: StreamBuilder<QuerySnapshot<Report>>(
                 stream:
-                    query.orderBy('create_time', descending: false).snapshots(),
+                    query.orderBy('status').orderBy('create_time', descending: false).snapshots(),
                 builder: (context, snapshot) {
                   final querySnap = snapshot.data;
                   if (querySnap != null && querySnap.docs.isNotEmpty) {
@@ -172,7 +180,7 @@ class _MainPageState extends State<MainPage>
                             report: report,
                             onLongPress: () {
                               if (role != 'Teknisi') {
-                                if (report.status == 'Diterima') {
+                                if (report.status != 'Progress') {
                                   showDialog(
                                     context: ctx,
                                     builder: (ctx) {
@@ -205,12 +213,12 @@ class _MainPageState extends State<MainPage>
                                       );
                                     },
                                   );
-                                }else {
-                                ScaffoldMessenger.of(ctx)
-                                  ..removeCurrentSnackBar()
-                                  ..showSnackBar(const SnackBar(
-                                      content: Text('Sedang dalam proses')));
-                              }
+                                } else {
+                                  ScaffoldMessenger.of(ctx)
+                                    ..removeCurrentSnackBar()
+                                    ..showSnackBar(const SnackBar(
+                                        content: Text('Sedang dalam proses')));
+                                }
                               } else {
                                 ScaffoldMessenger.of(ctx)
                                   ..removeCurrentSnackBar()
@@ -223,7 +231,7 @@ class _MainPageState extends State<MainPage>
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      DetailReportPage(report: report),
+                                      DetailReportPage(report: report, role: role,),
                                 ),
                               );
                             },

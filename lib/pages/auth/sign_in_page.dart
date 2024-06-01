@@ -19,13 +19,15 @@ class _SignInPageState extends State<SignInPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Form(
             key: _key,
             child: Column(
               children: [
+                heightXL,
+                heightXL,
                 heightXL,
                 const MyAuthHeader(
                   title: 'Sign In',
