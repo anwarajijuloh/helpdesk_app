@@ -80,24 +80,6 @@ class AddProgressReportPage extends StatelessWidget {
                 Row(
                   children: [
                     Flexible(
-                      flex: 1,
-                      child: MyTextField(
-                        controller: _estimateController,
-                        hintText: 'Estimasi',
-                        labelText: 'Estimasi',
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Estimasi tidak boleh kosong!';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Flexible(
                       flex: 2,
                       child: DropdownMenu<String>(
                         controller: _dropdownController,
@@ -125,6 +107,22 @@ class AddProgressReportPage extends StatelessWidget {
                             label: depLabel,
                           );
                         }).toList(),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      flex: 1,
+                      child: MyTextField(
+                        controller: _estimateController,
+                        hintText: 'Estimasi',
+                        labelText: 'Estimasi',
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Estimasi tidak boleh kosong!';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                   ],

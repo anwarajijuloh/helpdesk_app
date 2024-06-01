@@ -88,6 +88,12 @@ class _ProgressMenuState extends State<ProgressMenu> {
                                 ..showSnackBar(const SnackBar(
                                     content: Text("Access denied!")));
                             } else {
+                              if (i + 1 == listReportProgress.length) {
+                                ScaffoldMessenger.of(context)
+                                ..removeCurrentSnackBar()
+                                ..showSnackBar(const SnackBar(
+                                    content: Text("Progress telah selesai")));
+                            } else {
                               showDialog(
                                 context: ctx,
                                 builder: (context) {
@@ -124,6 +130,7 @@ class _ProgressMenuState extends State<ProgressMenu> {
                                 },
                               );
                             }
+                            }
                           },
                           onLongPress: () {
                             if (widget.role == 'Karyawan') {
@@ -132,12 +139,11 @@ class _ProgressMenuState extends State<ProgressMenu> {
                                 ..showSnackBar(const SnackBar(
                                     content: Text("Permission denied")));
                             }
-                            if (i + 1 != listReportProgress.length) {
+                            if (i + 1 == listReportProgress.length) {
                               ScaffoldMessenger.of(context)
                                 ..removeCurrentSnackBar()
                                 ..showSnackBar(const SnackBar(
                                     content: Text("Progress telah selesai")));
-                              print('progres telah selesai!');
                             } else {
                               if (widget.role != 'Teknisi') {
                                 ScaffoldMessenger.of(context)
