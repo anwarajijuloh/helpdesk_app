@@ -142,7 +142,7 @@ class _SearchReportPageState extends State<SearchReportPage> {
                         deskripsi: _resultList[index]['deskripsi'],
                         catatan: _resultList[index]['catatan'],
                         pid: _resultList[index]['pid'],
-                        createTime: _resultList[index]['create_time'],
+                        createTime: _resultList[index]['create_time'].toDate(),
                         status: _resultList[index]['status'],
                       ),
                       role: widget.role,
