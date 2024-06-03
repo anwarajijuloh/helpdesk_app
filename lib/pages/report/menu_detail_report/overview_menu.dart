@@ -30,7 +30,58 @@ class OverviewMenu extends StatefulWidget {
 }
 
 class _OverviewMenuState extends State<OverviewMenu> {
-  final FirebaseFirestore db = FirebaseFirestore.instance;
+  final _reportCollection = FirebaseFirestore.instance.collection('report');
+  Future<void> changeStatusReport(String rid) async {
+    final reportDoc = await _reportCollection.doc(rid).get();
+
+    if (!reportDoc.exists) {
+      return;
+    }
+
+    final report = Report.fromFirestore(reportDoc);
+
+    if (report.status == 'Diterima') {
+      final reportOldest = await _getReportReceivedOldes();
+      if (reportOldest == null || reportOldest.rid == rid) {
+        await _reportCollection.doc(rid).update({
+          'status': 'Progress',
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Laporan diproses'),
+        ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Ada laporan lain yang lebih terdahulu'),
+        ));
+      }
+    } else if (report.status == 'Progress') {
+      await _reportCollection.doc(rid).update({
+        'status': 'Selesai',
+      });
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Laporan selesai'),
+      ));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Status laporan tidak valid'),
+      ));
+    }
+  }
+
+  Future<Report?> _getReportReceivedOldes() async {
+    final querySnapshot = await _reportCollection
+        .where('status', isEqualTo: 'Diterima')
+        .orderBy('create_time', descending: false)
+        .limit(1)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      return Report.fromFirestore(querySnapshot.docs.first);
+    } else {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     initializeDateFormatting();
@@ -46,8 +97,8 @@ class _OverviewMenuState extends State<OverviewMenu> {
             heightM,
             MyOverviewReportCard(
               reportId: '#${widget.report!.rid}',
-              createAt:
-                  DateFormat("EEEE, d MMM y\nHH.mm", "id_id").format(widget.report!.createTime),
+              createAt: DateFormat("EEEE, d MMM y\nHH.mm", "id_id")
+                  .format(widget.report!.createTime),
               imageAssets: widget.report!.image != null
                   ? GestureDetector(
                       onTap: () {
@@ -92,33 +143,40 @@ class _OverviewMenuState extends State<OverviewMenu> {
             widget.role == 'Teknisi'
                 ? MyElevatedButton(
                     title: widget.report!.status == 'Progress'
-                        ? 'Selesai'
+                        ? 'Laporan Selesai'
                         : (widget.report!.status == 'Selesai')
-                            ? 'Reprogress'
-                            : 'Progress',
+                            ? 'Progress Kembali'
+                            : 'Progress Laporan',
                     onPressed: () async {
-                      var newStatus = widget.report!.status == 'Progress'
-                          ? 'Selesai'
-                          : 'Progress';
-                      await db
-                          .collection('report')
-                          .where('status', whereIn: ['Progress', 'Diterima'])
-                          .where('create_time',
-                              isLessThan: widget.report!.createTime)
-                          // .count()
-                          .get()
-                          .then((res) {
-                            ReportRepository.updateStatus(
-                                    status: newStatus, rid: widget.report!.rid)
-                                .then((res) {
-                              setState(() {
-                                widget.report!.status = newStatus;
-                              });
-                              ScaffoldMessenger.of(context)
-                                ..removeCurrentSnackBar()
-                                ..showSnackBar(SnackBar(content: Text(res.msg)));
-                            });
-                          });
+                      await changeStatusReport(widget.report!.rid);
+                      // var newStatus = widget.report!.status == 'Progress'
+                      //     ? 'Selesai'
+                      //     : 'Progress';
+                      // await db
+                      //     .collection('report')
+                      //     .where('status', whereIn: ['Progress', 'Diterima'])
+                      //     .orderBy('create_time',
+                      //         descending: true)
+                      //     .limit(1)
+                      //     .get()
+                      //     .then(
+                      //       (res) {
+                      //         ReportRepository.updateStatus(
+                      //                 status: newStatus,
+                      //                 rid: widget.report!.rid)
+                      //             .then(
+                      //           (res) {
+                      //             setState(() {
+                      //               widget.report!.status = newStatus;
+                      //             });
+                      //             ScaffoldMessenger.of(context)
+                      //               ..removeCurrentSnackBar()
+                      //               ..showSnackBar(
+                      //                   SnackBar(content: Text(res.msg)));
+                      //           },
+                      //         );
+                      //       },
+                      //     );
                     },
                   )
                 : (widget.report!.status != 'Diterima')
@@ -127,10 +185,12 @@ class _OverviewMenuState extends State<OverviewMenu> {
                         title: 'Edit Laporan',
                         onPressed: () {
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      AddReportPage(report: widget.report)));
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  AddReportPage(report: widget.report),
+                            ),
+                          );
                         },
                       ),
           ],

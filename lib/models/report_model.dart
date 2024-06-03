@@ -24,8 +24,7 @@ class Report {
   });
 
   factory Report.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> snapshot,
-    SnapshotOptions? options,
+    DocumentSnapshot<Map<String, dynamic>> snapshot, [SnapshotOptions? options]
   ) {
     final data = snapshot.data();
     final createTimeToStr = data?['create_time'].toDate().toString();
