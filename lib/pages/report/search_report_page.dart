@@ -61,13 +61,16 @@ class _SearchReportPageState extends State<SearchReportPage> {
   getReportStream() async {
     var data = await db
         .collection('report')
-        .orderBy('title')
-        .orderBy('rid')
+        .orderBy('status')
+        .orderBy('create_time', descending: true)
         .where('pid', isEqualTo: widget.pid)
         .get();
     if (widget.role == 'Teknisi') {
-      data =
-          await db.collection('report').orderBy('title').orderBy('rid').get();
+      data = await db
+          .collection('report')
+          .orderBy('status')
+          .orderBy('create_time', descending: true)
+          .get();
     }
 
     setState(() {

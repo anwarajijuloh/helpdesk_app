@@ -41,7 +41,7 @@ class AddProgressReportPage extends StatelessWidget {
       appBar: AppBar(
         title: isUpdate
             ? const Text(
-                'Tambah Progress',
+                'Update Progress',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -144,6 +144,9 @@ class AddProgressReportPage extends StatelessWidget {
                   title: isUpdate ? 'Update Progress' : 'Tambah Progress',
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
+                      Center(
+                        child: CircularProgressIndicator(),
+                      );
                       ReportProgress reportProgress = ReportProgress(
                         rpid: '',
                         title: _titleController.text,

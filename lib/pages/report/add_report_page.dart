@@ -33,6 +33,7 @@ class _AddReportPageState extends State<AddReportPage> {
   final _catatanController = TextEditingController();
 
   bool isUpdate = false;
+  bool isLoading = false;
 
   final ImagePicker _picker = ImagePicker();
   File? _image;
@@ -86,155 +87,176 @@ class _AddReportPageState extends State<AddReportPage> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25.0),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                heightM,
-                MyTextField(
-                  controller: _titleController,
-                  hintText: 'Tambah judul',
-                  labelText: 'Judul',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Judul tidak boleh kosong";
-                    }
-                    return null;
-                  },
-                ),
-                heightM,
-                DropdownMenu<String>(
-                  controller: _jenisController,
-                  hintText: 'Jenis',
-                  inputDecorationTheme: const InputDecorationTheme(
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
-                      borderSide: BorderSide(width: 0.8),
-                    ),
-                    contentPadding: EdgeInsets.all(18),
-                    fillColor: greenSecondary,
-                    filled: true,
-                    hintStyle: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: greenPrimary,
-                      fontStyle: FontStyle.normal,
-                    ),
-                  ),
-                  expandedInsets: EdgeInsets.zero,
-                  dropdownMenuEntries: labelList
-                      .map<DropdownMenuEntry<String>>((String depLabel) {
-                    return DropdownMenuEntry<String>(
-                      value: depLabel,
-                      label: depLabel,
-                    );
-                  }).toList(),
-                ),
-                heightM,
-                MyTextField(
-                  controller: _deskripsiController,
-                  hintText: 'Tambah deskripsi',
-                  labelText: 'Deskripsi',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Deskripsi tidak boleh kosong";
-                    }
-                    return null;
-                  },
-                ),
-                heightM,
-                MyTextField(
-                  controller: _catatanController,
-                  hintText: 'Tambah catatan',
-                  labelText: 'Catatan',
-                ),
-                heightM,
-                _image != null
-                    ? ImageSelected(
-                        myWidget: Image.file(_image!, fit: BoxFit.cover),
-                      )
-                    : (imageFromDB != null && _image == null)
-                        ? ImageSelected(
-                            myWidget:
-                                Image.network(imageFromDB, fit: BoxFit.cover),
-                          )
-                        : imageField(context),
-                heightL,
-                MyElevatedButton(
-                  title: title,
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                      Report newReport = Report(
-                        rid: '',
-                        title: _titleController.text,
-                        jenis: _jenisController.text,
-                        deskripsi: _deskripsiController.text,
-                        catatan: _catatanController.text,
-                        pid: '',
-                        createTime: DateTime.now(),
-                        status: 'Diterima',
-                      );
-                      if (_image != null) {
-                        await ReportRepository.uploadImage(imageFile: _image)
-                            .then((res) {
-                          if (res.data != null) {
-                            newReport.image = res.data;
+      body: isLoading == true
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      heightM,
+                      MyTextField(
+                        controller: _titleController,
+                        hintText: 'Tambah judul',
+                        labelText: 'Judul',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Judul tidak boleh kosong";
                           }
-                        });
-                      } else {
-                        newReport.image = imageFromDB;
-                      }
+                          return null;
+                        },
+                      ),
+                      heightM,
+                      DropdownMenu<String>(
+                        controller: _jenisController,
+                        hintText: 'Jenis',
+                        inputDecorationTheme: const InputDecorationTheme(
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                            borderSide: BorderSide(width: 0.8),
+                          ),
+                          contentPadding: EdgeInsets.all(18),
+                          fillColor: greenSecondary,
+                          filled: true,
+                          hintStyle: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: greenPrimary,
+                            fontStyle: FontStyle.normal,
+                          ),
+                        ),
+                        expandedInsets: EdgeInsets.zero,
+                        dropdownMenuEntries: labelList
+                            .map<DropdownMenuEntry<String>>((String depLabel) {
+                          return DropdownMenuEntry<String>(
+                            value: depLabel,
+                            label: depLabel,
+                          );
+                        }).toList(),
+                      ),
+                      heightM,
+                      MyTextField(
+                        controller: _deskripsiController,
+                        hintText: 'Tambah deskripsi',
+                        labelText: 'Deskripsi',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Deskripsi tidak boleh kosong";
+                          }
+                          return null;
+                        },
+                      ),
+                      heightM,
+                      MyTextField(
+                        controller: _catatanController,
+                        hintText: 'Tambah catatan',
+                        labelText: 'Catatan',
+                      ),
+                      heightM,
+                      _image != null
+                          ? ImageSelected(
+                              myWidget: Image.file(_image!, fit: BoxFit.cover),
+                            )
+                          : (imageFromDB != null && _image == null)
+                              ? ImageSelected(
+                                  myWidget: Image.network(imageFromDB,
+                                      fit: BoxFit.cover),
+                                )
+                              : imageField(context),
+                      heightL,
+                      MyElevatedButton(
+                        title: title,
+                        onPressed: isLoading == true
+                            ? null
+                            : () async {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                if (_formKey.currentState!.validate()) {
+                                  Report newReport = Report(
+                                    rid: '',
+                                    title: _titleController.text,
+                                    jenis: _jenisController.text,
+                                    deskripsi: _deskripsiController.text,
+                                    catatan: _catatanController.text,
+                                    pid: '',
+                                    createTime: DateTime.now(),
+                                    status: 'Diterima',
+                                  );
+                                  if (_image != null) {
+                                    await ReportRepository.uploadImage(
+                                            imageFile: _image)
+                                        .then((res) {
+                                      if (res.data != null) {
+                                        newReport.image = res.data;
+                                      }
+                                    });
+                                  } else {
+                                    newReport.image = imageFromDB;
+                                  }
 
-                      if (isUpdate) {
-                        final prefs = await SharedPreferences.getInstance();
-                        final pid = prefs.getString('pid');
-                        newReport.rid = report!.rid;
-                        newReport.pid = pid!;
-                        await ReportRepository.updateReport(report: newReport)
-                            .then((res) {
-                          ScaffoldMessenger.of(context)
-                            ..removeCurrentSnackBar()
-                            ..showSnackBar(SnackBar(content: Text(res.msg)));
-                          if (res.isNotLogin == true) {
-                            Navigator.pushNamedAndRemoveUntil(
-                                context, '/signin_page', (route) => false);
-                          }
-                          if (res.success) {
-                            Navigator.pop(context);
-                          }
-                        });
-                      } else {
-                        if (_image == null) {
-                          newReport.image = null;
-                        }
-                        await ReportRepository.addReport(report: newReport)
-                            .then((res) {
-                          ScaffoldMessenger.of(context)
-                            ..removeCurrentSnackBar()
-                            ..showSnackBar(SnackBar(content: Text(res.msg)));
-                          if (res.isNotLogin == true) {
-                            Navigator.pushNamedAndRemoveUntil(
-                                context, '/signin_page', (route) => false);
-                          }
-                          if (res.success) {
-                            Navigator.pop(context);
-                          }
-                        });
-                      }
-                    }
-                  },
+                                  if (isUpdate) {
+                                    final prefs =
+                                        await SharedPreferences.getInstance();
+                                    final pid = prefs.getString('pid');
+                                    newReport.rid = report!.rid;
+                                    newReport.pid = pid!;
+                                    await ReportRepository.updateReport(
+                                            report: newReport)
+                                        .then((res) {
+                                      ScaffoldMessenger.of(context)
+                                        ..removeCurrentSnackBar()
+                                        ..showSnackBar(
+                                            SnackBar(content: Text(res.msg)));
+                                      if (res.isNotLogin == true) {
+                                        Navigator.pushNamedAndRemoveUntil(
+                                            context,
+                                            '/signin_page',
+                                            (route) => false);
+                                      }
+                                      if (res.success) {
+                                        Navigator.pop(context);
+                                      }
+                                    });
+                                  } else {
+                                    if (_image == null) {
+                                      newReport.image = null;
+                                    }
+
+                                    await ReportRepository.addReport(
+                                            report: newReport)
+                                        .then((res) {
+                                      ScaffoldMessenger.of(context)
+                                        ..removeCurrentSnackBar()
+                                        ..showSnackBar(
+                                            SnackBar(content: Text(res.msg)));
+                                      if (res.isNotLogin == true) {
+                                        Navigator.pushNamedAndRemoveUntil(
+                                            context,
+                                            '/signin_page',
+                                            (route) => false);
+                                      }
+
+                                      if (res.success) {
+                                        Navigator.pop(context);
+                                      }
+                                    });
+                                  }
+                                }
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              },
+                      ),
+                    ],
+                  ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 
