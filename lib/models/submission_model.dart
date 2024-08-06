@@ -7,6 +7,8 @@ class Submission {
   String rid;
   DateTime createTime;
   String? status;
+  String? estimasi;
+  String? satuanEstimasi;
 
   Submission({
     required this.sid,
@@ -15,6 +17,8 @@ class Submission {
     required this.rid,
     required this.createTime,
     this.status,
+    this.estimasi,
+    this.satuanEstimasi,
   });
 
   factory Submission.fromFirestore(
@@ -30,6 +34,8 @@ class Submission {
       rid: data?['rid'],
       createTime: DateTime.parse(createTimeToStr!),
       status: data?['status'],
+      estimasi: data?['estimasi'],
+      satuanEstimasi: data?['satuan_estimasi'],
     );
   }
 
@@ -41,6 +47,8 @@ class Submission {
       "rid": rid,
       "create_time": createTime,
       "status": status,
+      "estimasi": estimasi,
+      "satuan_estimasi": satuanEstimasi,
     };
   }
 }

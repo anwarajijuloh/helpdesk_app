@@ -62,8 +62,12 @@ class _OverviewMenuState extends State<OverviewMenu> {
         content: Text('Laporan selesai'),
       ));
     } else {
+      // reprogress status selesai
+      await _reportCollection.doc(rid).update({
+        'status': 'Progress',
+      });
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Status laporan tidak valid'),
+        content: Text('Status laporan diproses kembali!'),
       ));
     }
   }

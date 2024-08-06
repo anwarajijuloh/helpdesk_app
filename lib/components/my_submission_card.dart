@@ -8,8 +8,16 @@ class MySubmissionCard extends StatelessWidget {
   final String subtitle;
   final String status;
   final String date;
+  final String estimasi;
+  final String satuan;
   const MySubmissionCard({
-    super.key, required this.title, required this.subtitle, required this.status, required this.date,
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.status,
+    required this.date,
+    required this.estimasi,
+    required this.satuan,
   });
 
   @override
@@ -32,22 +40,91 @@ class MySubmissionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w700, color: greenPrimary,),),
-          heightS,
-          Text(subtitle, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: txtPrimary,),),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: greenPrimary,
+                      ),
+                    ),
+                    heightS,
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: txtPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                flex: 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Text(
+                      'Estimasi',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: txtPrimary,
+                      ),
+                    ),
+                    Text(
+                      '$estimasi $satuan',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: txtPrimary,
+                      ),
+                    ),
+                
+                  ],
+                ),
+              ),
+            ],
+          ),
           const Divider(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4,),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: MyStatus.getColorSub(status),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(status, style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w500, color: Colors.white,),),
+                child: Text(
+                  status,
+                  style: const TextStyle(
+                    fontSize: 8,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
               ),
-              Text(date, textAlign: TextAlign.end, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: grey2,),),
+              Text(
+                date,
+                textAlign: TextAlign.end,
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  color: grey2,
+                ),
+              ),
             ],
           ),
         ],

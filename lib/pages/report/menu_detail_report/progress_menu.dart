@@ -90,96 +90,40 @@ class _ProgressMenuState extends State<ProgressMenu> {
                             } else {
                               if (i + 1 == listReportProgress.length) {
                                 ScaffoldMessenger.of(context)
-                                ..removeCurrentSnackBar()
-                                ..showSnackBar(const SnackBar(
-                                    content: Text("Progress telah selesai")));
-                            } else {
-                              showDialog(
-                                context: ctx,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: const Text("Ubah Laporan"),
-                                    content: const Text(
-                                        "Apakah anda yakin akan mengubah laporan ini?"),
-                                    actions: <Widget>[
-                                      MaterialButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text("Batal"),
-                                      ),
-                                      MaterialButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  AddProgressReportPage(
-                                                rid: widget.rid,
-                                                reportProgress: reportProgress,
-                                              ),
-                                            ),
-                                          );
-                                          
-                                        },
-                                        child: const Text("Ya"),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            }
-                            }
-                          },
-                          onLongPress: () {
-                            if (widget.role == 'Karyawan') {
-                              ScaffoldMessenger.of(context)
-                                ..removeCurrentSnackBar()
-                                ..showSnackBar(const SnackBar(
-                                    content: Text("Permission denied")));
-                            }
-                            if (i + 1 == listReportProgress.length) {
-                              ScaffoldMessenger.of(context)
-                                ..removeCurrentSnackBar()
-                                ..showSnackBar(const SnackBar(
-                                    content: Text("Progress telah selesai")));
-                            } else {
-                              if (widget.role != 'Teknisi') {
-                                ScaffoldMessenger.of(context)
                                   ..removeCurrentSnackBar()
                                   ..showSnackBar(const SnackBar(
-                                      content: Text("Access denied!")));
+                                      content: Text("Progress telah selesai")));
                               } else {
                                 showDialog(
                                   context: ctx,
                                   builder: (context) {
                                     return AlertDialog(
-                                      title: const Text("Hapus Laporan"),
+                                      title: const Text("Ubah Laporan"),
                                       content: const Text(
-                                          "Apakah anda yakin akan menghapus laporan ini?"),
+                                          "Apakah anda yakin akan mengubah laporan ini?"),
                                       actions: <Widget>[
                                         MaterialButton(
                                           onPressed: () {
-                                            ReportProgressRepository
-                                                    .deleteReportProgress(
-                                                        rpid:
-                                                            reportProgress.rpid)
-                                                .then((res) {
-                                              ScaffoldMessenger.of(context)
-                                                ..removeCurrentSnackBar()
-                                                ..showSnackBar(SnackBar(
-                                                    content: Text(res.msg)));
-                                            });
-                                            Navigator.pop(context);
+                                            Navigator.of(context).pop();
                                           },
-                                          child: const Text('Yes'),
+                                          child: const Text("Batal"),
                                         ),
                                         MaterialButton(
                                           onPressed: () {
-                                            Navigator.pop(context);
+                                            Navigator.of(context).pop();
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    AddProgressReportPage(
+                                                  rid: widget.rid,
+                                                  reportProgress:
+                                                      reportProgress,
+                                                ),
+                                              ),
+                                            );
                                           },
-                                          child: const Text('No'),
+                                          child: const Text("Ya"),
                                         ),
                                       ],
                                     );
@@ -188,11 +132,141 @@ class _ProgressMenuState extends State<ProgressMenu> {
                               }
                             }
                           },
+                          onLongPress: () {
+                            // Map QueryDocumentSnapshot to ReportProgress objects
+                            List<ReportProgress> reportProgressList =
+                                listReportProgress
+                                    .map((doc) => ReportProgress.fromFirestore(
+                                        doc as DocumentSnapshot<
+                                            Map<String, dynamic>>,
+                                        null))
+                                    .toList();
+
+                            // Sort the list by createTime if not already sorted
+                            reportProgressList.sort(
+                                (a, b) => b.createTime.compareTo(a.createTime));
+                            // Check if reportProgress.createTime is not the most recent one
+                            if (reportProgressList.isNotEmpty &&
+                                reportProgress.createTime !=
+                                    reportProgressList.first.createTime) {
+                              ScaffoldMessenger.of(context)
+                                ..removeCurrentSnackBar()
+                                ..showSnackBar(const SnackBar(
+                                    content: Text("Progress telah selesai")));
+                            } else {
+                              // If there is only one reportProgress or the user role is not 'Karyawan'
+                              if (reportProgressList.length == 1 ||
+                                  widget.role != 'Karyawan') {
+                                if (widget.role != 'Teknisi') {
+                                  ScaffoldMessenger.of(context)
+                                    ..removeCurrentSnackBar()
+                                    ..showSnackBar(const SnackBar(
+                                        content: Text("Access denied!")));
+                                } else {
+                                  showDialog(
+                                    context: ctx,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: const Text("Hapus Laporan"),
+                                        content: const Text(
+                                            "Apakah anda yakin akan menghapus laporan ini?"),
+                                        actions: <Widget>[
+                                          MaterialButton(
+                                            onPressed: () {
+                                              ReportProgressRepository
+                                                      .deleteReportProgress(
+                                                          rpid: reportProgress
+                                                              .rpid)
+                                                  .then((res) {
+                                                ScaffoldMessenger.of(context)
+                                                  ..removeCurrentSnackBar()
+                                                  ..showSnackBar(SnackBar(
+                                                      content: Text(res.msg)));
+                                              });
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text('Yes'),
+                                          ),
+                                          MaterialButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text('No'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                }
+                              } else {
+                                ScaffoldMessenger.of(context)
+                                  ..removeCurrentSnackBar()
+                                  ..showSnackBar(const SnackBar(
+                                      content: Text("Permission denied")));
+                              }
+                            }
+                            // if (widget.role == 'Karyawan') {
+                            //   ScaffoldMessenger.of(context)
+                            //     ..removeCurrentSnackBar()
+                            //     ..showSnackBar(const SnackBar(
+                            //         content: Text("Permission denied")));
+                            // }
+                            // if (i + 1 == listReportProgress.length) {
+                            //   ScaffoldMessenger.of(context)
+                            //     ..removeCurrentSnackBar()
+                            //     ..showSnackBar(const SnackBar(
+                            //         content: Text("Progress telah selesai")));
+                            // } else {
+                            //   if (widget.role != 'Teknisi') {
+                            //     ScaffoldMessenger.of(context)
+                            //       ..removeCurrentSnackBar()
+                            //       ..showSnackBar(const SnackBar(
+                            //           content: Text("Access denied!")));
+                            //   } else {
+                            //     showDialog(
+                            //       context: ctx,
+                            //       builder: (context) {
+                            //         return AlertDialog(
+                            //           title: const Text("Hapus Laporan"),
+                            //           content: const Text(
+                            //               "Apakah anda yakin akan menghapus laporan ini?"),
+                            //           actions: <Widget>[
+                            //             MaterialButton(
+                            //               onPressed: () {
+                            //                 ReportProgressRepository
+                            //                         .deleteReportProgress(
+                            //                             rpid:
+                            //                                 reportProgress.rpid)
+                            //                     .then((res) {
+                            //                   ScaffoldMessenger.of(context)
+                            //                     ..removeCurrentSnackBar()
+                            //                     ..showSnackBar(SnackBar(
+                            //                         content: Text(res.msg)));
+                            //                 });
+                            //                 Navigator.pop(context);
+                            //               },
+                            //               child: const Text('Yes'),
+                            //             ),
+                            //             MaterialButton(
+                            //               onPressed: () {
+                            //                 Navigator.pop(context);
+                            //               },
+                            //               child: const Text('No'),
+                            //             ),
+                            //           ],
+                            //         );
+                            //       },
+                            //     );
+                            //   }
+                            // }
+                          },
                           child: MyTimelineTile(
                             title: reportProgress.title,
                             description: reportProgress.deskripsi,
-                            estimate: reportProgress.estimasi != null && reportProgress.satuanEstimasi != null ?
-                                'Estimasi : ${reportProgress.estimasi} ${reportProgress.satuanEstimasi}' : 'Estimasi : -',
+                            estimate: reportProgress.estimasi != null &&
+                                    reportProgress.satuanEstimasi != null
+                                ? 'Estimasi : ${reportProgress.estimasi} ${reportProgress.satuanEstimasi}'
+                                : 'Estimasi : -',
                             dateCreateAt: DateFormat("EEEE, d MMMM", "id_ID")
                                 .format(reportProgress.createTime),
                             hourCreateAt: DateFormat("HH.mm", "id_ID")
