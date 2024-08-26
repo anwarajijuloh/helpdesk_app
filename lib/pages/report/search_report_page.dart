@@ -133,6 +133,7 @@ class _SearchReportPageState extends State<SearchReportPage> {
                 pid: _resultList[index]['pid'],
                 createTime: _resultList[index]['create_time'].toDate(),
                 status: _resultList[index]['status'],
+                serialNumber: _resultList[index]['serial_number'],
               ),
               onTap: () {
                 Navigator.push(
@@ -149,6 +150,7 @@ class _SearchReportPageState extends State<SearchReportPage> {
                         pid: _resultList[index]['pid'],
                         createTime: _resultList[index]['create_time'].toDate(),
                         status: _resultList[index]['status'],
+                        serialNumber: _resultList[index]['serial_number'],
                       ),
                       role: widget.role,
                     ),

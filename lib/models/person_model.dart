@@ -7,6 +7,7 @@ class Person {
   String password;
   String? bagian;
   String role;
+  List<String>? serialNumbers;
 
   Person({
     required this.pid,
@@ -15,6 +16,7 @@ class Person {
     required this.password,
     required this.bagian,
     required this.role,
+    this.serialNumbers,
   });
 
   factory Person.fromFirestore(
@@ -29,6 +31,9 @@ class Person {
       password: data?['password'],
       bagian: data?['bagian'],
       role: data?['role'],
+      serialNumbers: data?['serialNumbers'] != null 
+          ? List<String>.from(data?['serialNumbers']) 
+          : null,
     );
   }
 
@@ -40,6 +45,7 @@ class Person {
       "password": password,
       "bagian": bagian,
       "role": role,
+      "serialNumbers": serialNumbers,
     };
   }
 }

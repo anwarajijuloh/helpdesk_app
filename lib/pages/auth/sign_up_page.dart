@@ -34,6 +34,9 @@ class _SignUpPageState extends State<SignUpPage> {
   final _bagianController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _serialNumber1Controller = TextEditingController();
+  final _serialNumber2Controller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,6 +85,26 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   heightS,
                   MyTextFormField(
+                    controller: _serialNumber1Controller,
+                    hintText: 'Serial Number 1',
+                    isObscured: false,
+                    icons: Icons.computer,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "serial number tidak boleh kosong";
+                      }
+                      return null;
+                    },
+                  ),
+                  heightS,
+                  MyTextFormField(
+                    controller: _serialNumber2Controller,
+                    hintText: 'Serial Number 2 (optional)',
+                    isObscured: false,
+                    icons: Icons.computer,
+                  ),
+                  heightS,
+                  MyTextFormField(
                     controller: _usernameController,
                     hintText: 'Username',
                     isObscured: false,
@@ -111,6 +134,14 @@ class _SignUpPageState extends State<SignUpPage> {
                     title: 'sign up',
                     onPressed: () {
                       if (_key.currentState!.validate()) {
+                        final List<String> serialNumbers = [];
+
+                        if (_serialNumber1Controller.text.isNotEmpty) {
+                          serialNumbers.add(_serialNumber1Controller.text);
+                        }
+                        if (_serialNumber2Controller.text.isNotEmpty) {
+                          serialNumbers.add(_serialNumber2Controller.text);
+                        }
                         var person = Person(
                           pid: '',
                           nama: _namaController.text,
@@ -118,6 +149,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           password: _passwordController.text,
                           bagian: _bagianController.text,
                           role: 'Karyawan',
+                          serialNumbers: serialNumbers,
                         );
                         AuthRepository.authSignUp(person: person).then((res) {
                           ScaffoldMessenger.of(context)
@@ -133,6 +165,8 @@ class _SignUpPageState extends State<SignUpPage> {
                             _bagianController.clear();
                             _usernameController.clear();
                             _passwordController.clear();
+                            _serialNumber1Controller.clear();
+                            _serialNumber2Controller.clear();
                           }
                         });
                       }

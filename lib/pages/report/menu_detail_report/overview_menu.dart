@@ -64,7 +64,7 @@ class _OverviewMenuState extends State<OverviewMenu> {
     } else {
       // reprogress status selesai
       await _reportCollection.doc(rid).update({
-        'status': 'Progress',
+        'status': 'Diterima',
       });
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Status laporan diproses kembali!'),
@@ -96,6 +96,7 @@ class _OverviewMenuState extends State<OverviewMenu> {
             MySenderCard(
               name: widget.name,
               departement: widget.bagian,
+              serial: widget.report!.serialNumber,
             ),
             heightM,
             MyOverviewReportCard(
@@ -144,12 +145,11 @@ class _OverviewMenuState extends State<OverviewMenu> {
             ),
             heightL,
             widget.role == 'Teknisi'
-                ? MyElevatedButton(
-                    title: widget.report!.status == 'Progress'
-                        ? 'Laporan Selesai'
-                        : (widget.report!.status == 'Selesai')
-                            ? 'Progress Kembali'
-                            : 'Progress Laporan',
+                ? (widget.report!.status == 'Selesai') ? const SizedBox() : 
+                MyElevatedButton(
+                    title: widget.report!.status == 'Diterima'
+                        ? 'Progress Laporan'
+                        : 'Progress Selesai',
                     onPressed: () async {
                       await changeStatusReport(widget.report!.rid);
                       // var newStatus = widget.report!.status == 'Progress'
@@ -182,20 +182,27 @@ class _OverviewMenuState extends State<OverviewMenu> {
                       //     );
                     },
                   )
-                : (widget.report!.status != 'Diterima')
+                : (widget.report!.status == 'Progress')
                     ? const SizedBox()
-                    : MyElevatedButton(
-                        title: 'Edit Laporan',
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  AddReportPage(report: widget.report),
-                            ),
-                          );
-                        },
-                      ),
+                    : (widget.report!.status == 'Diterima')
+                        ? MyElevatedButton(
+                            title: 'Edit Laporan',
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      AddReportPage(report: widget.report),
+                                ),
+                              );
+                            },
+                          )
+                        : MyElevatedButton(
+                            title: 'Progress Kembali',
+                            onPressed: () async {
+                              await changeStatusReport(widget.report!.rid);
+                            },
+                          ),
           ],
         ),
       ),

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../components/my_elevated_button.dart';
 import '../../components/my_text_field.dart';
 import '../../config/constants.dart';
+import '../../models/person_model.dart';
 import '../../models/report_model.dart';
 import '../../repositories/report_repository.dart';
 
@@ -29,11 +31,15 @@ class _AddReportPageState extends State<AddReportPage> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _jenisController = TextEditingController();
+  final _serialNumberController = TextEditingController();
   final _deskripsiController = TextEditingController();
   final _catatanController = TextEditingController();
 
   bool isUpdate = false;
   bool isLoading = false;
+
+  String? selectedSerialNumber;
+  List<String> serialNumbers = [];
 
   final ImagePicker _picker = ImagePicker();
   File? _image;
@@ -59,6 +65,26 @@ class _AddReportPageState extends State<AddReportPage> {
       }
     });
   }
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadPersonData();
+  }
+
+  Future<void> _loadPersonData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final pid = prefs.getString('pid');
+
+    if (pid != null) {
+      final docSnapshot = await FirebaseFirestore.instance.collection('person').doc(pid).get();
+      final person = Person.fromFirestore(docSnapshot, null);
+      
+      setState(() {
+        serialNumbers = person.serialNumbers ?? [];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +95,7 @@ class _AddReportPageState extends State<AddReportPage> {
     if (report != null) {
       _titleController.text = report.title;
       _jenisController.text = report.jenis;
+      _serialNumberController.text = report.serialNumber;
       _deskripsiController.text = report.deskripsi;
       _catatanController.text = report.catatan ?? '';
       imageFromDB = report.image;
@@ -139,6 +166,34 @@ class _AddReportPageState extends State<AddReportPage> {
                         }).toList(),
                       ),
                       heightM,
+                      DropdownMenu<String>(
+                        controller: _serialNumberController,
+                        hintText: 'Pilih Serial Number',
+                        inputDecorationTheme: const InputDecorationTheme(
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                            borderSide: BorderSide(width: 0.8),
+                          ),
+                          contentPadding: EdgeInsets.all(18),
+                          fillColor: greenSecondary,
+                          filled: true,
+                          hintStyle: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: greenPrimary,
+                            fontStyle: FontStyle.normal,
+                          ),
+                        ),
+                        expandedInsets: EdgeInsets.zero,
+                        dropdownMenuEntries: serialNumbers
+                            .map<DropdownMenuEntry<String>>((String serial) {
+                          return DropdownMenuEntry<String>(
+                            value: serial,
+                            label: serial,
+                          );
+                        }).toList(),
+                      ),
+                      heightM,
                       MyTextField(
                         controller: _deskripsiController,
                         hintText: 'Tambah deskripsi',
@@ -186,6 +241,7 @@ class _AddReportPageState extends State<AddReportPage> {
                                     pid: '',
                                     createTime: DateTime.now(),
                                     status: 'Diterima',
+                                    serialNumber: _serialNumberController.text,
                                   );
                                   if (_image != null) {
                                     await ReportRepository.uploadImage(

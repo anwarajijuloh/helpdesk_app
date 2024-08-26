@@ -5,10 +5,12 @@ import '../config/constants.dart';
 class MySenderCard extends StatelessWidget {
   final String name;
   final String departement;
+  final String? serial;
   const MySenderCard({
     super.key,
     required this.name,
     required this.departement,
+    required this.serial,
   });
 
   @override
@@ -73,6 +75,17 @@ class MySenderCard extends StatelessWidget {
                 width: 230,
                 child: Text(
                   'Posisi  : $departement',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 230,
+                child: Text(
+                  'Serial  : $serial',
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,

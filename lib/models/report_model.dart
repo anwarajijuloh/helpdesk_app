@@ -10,6 +10,7 @@ class Report {
   DateTime createTime;
   String status;
   String? image;
+  String serialNumber;
 
   Report({
     required this.rid,
@@ -21,6 +22,7 @@ class Report {
     required this.createTime,
     required this.status,
     this.image,
+    required this.serialNumber,
   });
 
   factory Report.fromFirestore(
@@ -38,6 +40,7 @@ class Report {
       createTime: DateTime.parse(createTimeToStr!),
       status: data?['status'],
       image: data?['image'],
+      serialNumber: data?['serial_number'],
     );
   }
 
@@ -52,6 +55,7 @@ class Report {
       "create_time": createTime,
       "status": status,
       "image": image,
+      "serial_number": serialNumber,
     };
   }
 }
